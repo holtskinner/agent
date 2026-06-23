@@ -103,22 +103,58 @@ def request_drone_pizza_delivery(pizza_type: str, toppings: list[str], delivery_
         delivery_address (str): The absolute physical address or GPS coordinates for drone drop-off.
 
     Returns:
-        dict: Dispatch status, ETA, and drone flight telemetry info.
+        dict: Dispatch status, ETA, price breakdown, and drone flight telemetry info.
     """
+    base_prices = {
+        "margherita": 12.00,
+        "pepperoni": 15.00,
+        "neapolitan": 15.00,
+        "ceo specialty": 20.00
+    }
+    
+    topping_prices = {
+        "mushrooms": 1.50,
+        "truffle oil": 4.00,
+        "extra cheese": 1.50,
+        "pepperoni": 2.00,
+        "olives": 1.00,
+        "onions": 1.00,
+        "basil": 0.50,
+        "gold flakes": 10.00
+    }
+    
+    pizza_key = pizza_type.lower().strip()
+    base_price = base_prices.get(pizza_key, 14.00)
+    
+    toppings_summary = []
+    total_toppings_price = 0.0
+    for t in toppings:
+        t_key = t.lower().strip()
+        price = topping_prices.get(t_key, 1.25)
+        total_toppings_price += price
+        toppings_summary.append({"topping": t, "price": f"${price:.2f}"})
+        
+    total_price = base_price + total_toppings_price
     eta_minutes = random.randint(8, 15)
     drone_id = f"DRONE-{random.randint(100, 999)}"
+    
     return {
         "status": "success",
         "message": "Drone pizza delivery successfully dispatched!",
         "delivery_details": {
             "pizza_type": pizza_type,
-            "toppings": toppings,
             "delivery_address": delivery_address,
             "drone_id": drone_id,
             "estimated_arrival": f"{eta_minutes} minutes",
+            "pricing": {
+                "base_price": f"${base_price:.2f}",
+                "toppings_breakdown": toppings_summary,
+                "total_price": f"${total_price:.2f}"
+            },
             "telemetry": "Active navigation via obstacle-avoidance LiDAR. Ensure landing pad is clear of overhead power lines."
         }
     }
+
 
 def get_conglomerate_dashboard() -> dict:
     """Returns a general operational status, sales metrics, and fun updates from our unique multi-industry corporate group."""
